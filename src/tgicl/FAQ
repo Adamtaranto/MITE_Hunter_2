@@ -1,0 +1,75 @@
+**********************************************************
+Q: I got many contigs from a single cluster. 
+   How could that happen and how should I interpret that?
+**********************************************************
+
+A: Possible interpretations of multiple contigs split from the same cluster
+are: alternative splicing (sharing one or more exons, but not the rest of the
+read unless large gaps are considered), shared protein domains (as found in
+many immunoglobulins, for example) or simply various types of repeats present
+in some of the reads (especially in the UTRs).
+
+Here is a longer explanation about how the splitting of a
+cluster in multiple contigs actually takes place.
+
+Consider three sequences A,B  and C, with the following valid pairwise
+alignments found:
+
+A--------->
+      <--------B
+
+and
+
+C--------->
+      <--------B
+
+There is obviously an overlap between A and C,  you can tell that for sure
+because they obviously share the same part of B.... But, not surprisingly, it
+is possible that the overlap between A and C is limited only to that right-side
+region  - i.e. their left halves might not share any similarity. Such overlap
+will not be considered valid and not reported by mgblast during the pairwise
+searches, because of the maximum unmatched overhang limit (the -v parameter of
+TGICL, default value being 30 nucleotides)
+
+Now, since the clustering process is a simple "transitive closure" procedure,
+the clustering program will find the links (overlaps) A-B and B-C and it will
+put A,B and C in the same cluster - because the sequences are linked together,
+transitively, through sequence B. The clustering procedure doesn't perform any
+analysis of the coordinates of alignments in the context of the *whole* cluster
+to see if they make sense all together - it is just a blind transitive linkage
+procedure.
+
+But the assembly step is much more rigorous. It will try to put all sequences
+from a cluster in a full *multiple* sequence alignment - and for that is will
+first try to build a meaningful layout of all the component sequences. In the
+case above, a layout would look like this:
+
+A----------->
+?????<--------B
+C----------->
+
+I placed question marks '?' where there are no matches (no alignment) between A
+and C. So it seems that there is no global layout possible to include all three
+sequences - unless the whole left-side halves of both A and C are cut out,
+which is usually not allowed by the assembly clipping limits. So the assembler
+will just split this cluster (A-B-C) into an assembly of two sequences (A+B or
+C+B) and a singleton (C or A, respectively). The decision of which alignment to
+keep is based of the score: if the alignment A-B is better than C-B, then A-B
+is used to build the assembly and C is made a singleton. etc. As seen above,
+clustering is only a basic attempt to make a rough grouping of the sequences in
+the input data set, it doesn't group sequences together based on their complete
+contextual compatibility -- i.e. with all the other members of the cluster.
+
+Often times, when sequences in a cluster cannot be all reconciled into a
+consistent multiple alignment during the much more rigorous assembly phase, 
+they will be split accordingly in multiple assemblies (contigs) and/or
+singletons.
+
+Such clusters might share some similarity although they should not have 
+end-to-end exending overlaps (however, if occasionally such terminal 
+overlaps between contigs are found, then I just have to blame cap3 for 
+incomplete/ineffective assembly of the given cluster -- and unfortunately 
+I encountered quite a few cases where cap3 fails to assemble properly 
+highly expressed transcripts, with very high coverage).
+
+

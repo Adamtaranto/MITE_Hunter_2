@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+umask 0002;
+
+chdir($ENV{PVMSX_WD}) if ($ENV{PVMSX_WD});
+
+my ($file, $numpass, $seqnum, $last, $skipped, $total, $userparams)=@ARGV;
+
+$ENV{'PATH'}=$FindBin::Bin.':'.$ENV{'PATH'};
+#($ydbfile, my $asmopts, my $qualidx)=split(/:/,$ydbfile, 3);
+
+my ($ydbfile, $asmopts, $qualidx, $paramfile, $limits) = split(/:/,$userparams);
+
+$asmopts =~ s/\~\+/ /g;
+my $to_yank=$file.'.ynk';
+my $log_file='log_std';
+my $err_file='err_log';
+
+open(STDERR, '>>'.$err_file);
+open(STDOUT, '>>'.$log_file);
+open(CLFILE, '<'.$file);
+$_=<CLFILE> until m/^>(\S+)\s+(\d+)/;
+my ($cl_id, $cl_count)=($1,$2);
+{
+ local $/=undef;
+ $_=<CLFILE>; 
+ tr/ \t/\n\n/; #here is the cluster
+}
+close(CLFILE);
+   
+open(YANKIN, '>'.$to_yank);
+print YANKIN $_;
+close(YANKIN);
+print ">>Cluster $cl_id ($cl_count):\n"; #this will go to STDOUT logfile
+
+my $to_asm=$cl_id;
+
+if (-e '../.stop_at') {
+ my $r=`cat ../.stop_at`;
+ chomp($r);
+ if ($r eq $cl_id) {
+   print STDERR "Stopped by request from ../.stop_at file (cluster $r)\n";
+   exit(1);
+   }
+}
+
+system("cdbyank $ydbfile < $to_yank > $to_asm");
+if ($?) {
+  print STDERR "Error yanking sequences:\n";
+  print STDERR " at cdbyank $ydbfile < $to_yank > $to_asm\n";
+  exit(1);
+  }
+
+if ($qualidx) {
+ system("cdbyank $qualidx < $to_yank > $to_asm.qual")
+   && die("Error pulling the quality values for cluster $cl_id ($to_asm)\n");
+ }
+
+  
+unlink($file, $to_yank);
+#now assemble it:
+my ($cap_align, $cap_contigs, $cap_singlets, $cap_ace)=
+  ($to_asm.'.align', $to_asm.'.cap.contigs', 
+   $to_asm.'.cap.singlets', $to_asm.'.cap.ace');
+print "  starting cap3 for $to_asm..\n";
+system("cap3 $to_asm $asmopts > $cap_align");
+my $errcode=$?;
+if ($errcode) {
+  print STDERR "Error! cap3 failure detected (code=$errcode) on: $to_asm\n";
+  exit(0); #exit, but do not report error 
+           #- so we can continue to assemble the rest of the clusters!
+  }
+if (-s $cap_singlets) {
+  system("cat $cap_singlets >> singlets");
+  &catErr($cap_singlets) if ($?);
+  }  
+system("cat $cap_contigs | sed 's/^>/>${cl_id}/' >> contigs");
+&catErr($cap_contigs) if ($?);
+
+system("cat $cap_ace | sed 's/^CO /CO ${cl_id}/' >> ACE");
+&catErr($cap_ace) if ($?);
+
+system("cat $cap_align | sed 's/ Contig / ${cl_id}Contig/' >> align");
+&catErr($cap_align) if ($?);
+
+
+unlink($to_asm);
+unlink($file);
+$to_asm.='*';
+unlink(<${to_asm}>);
+print "<<  finished $cl_id \n";
+
+
+#==================
+sub catErr {
+ print STDERR "Error appending $_[0]\n",
+    "(Not enough space on device?)\n";
+ exit(1);   
+}
