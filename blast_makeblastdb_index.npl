@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # 11/21/2010
-# fix the _formatdb_
+# fix the _makeblastdb_
 # 11/12/2009 a t c g -> A T C G
 # if want to check the gene annoation information from the corrosponding genbank file, set -g 1 
 # get rid of the \n at the end of each line
@@ -86,7 +86,7 @@ close(OF);
 
 system "mv $Input.temp $Input\n";
 
-system "_formatdb_ -i $Input -o F -p F\n";
+system "_makeblastdb_ -in $Input -dbtype nucl\n";
 
 system "perl $Indexer -i $Input\n";
 

@@ -8,8 +8,8 @@ use Getopt::Std;
 getopts("d:f:b:m:M:o:h:");
 
 $MITE_Hunter_Dir = defined $opt_d ? $opt_d : "";
-$Formatdb        = defined $opt_f ? $opt_f : "formatdb";
-$Blastall        = defined $opt_b ? $opt_b : "blastall";
+$Makeblastdb     = defined $opt_f ? $opt_f : "makeblastdb";
+$Legacyblast     = defined $opt_b ? $opt_b : "legacyblast";
 $Mdust           = defined $opt_m ? $opt_m : "";
 $Muscle          = defined $opt_M ? $opt_M : "";
 $Help            = defined $opt_h ? $opt_h : "";
@@ -17,7 +17,7 @@ $Help            = defined $opt_h ? $opt_h : "";
 usuage() if((!$MITE_Hunter_Dir)||($Help));
 #-----------------------------------------------------
 
-$BFI	= $MITE_Hunter_Dir."blast_formatdb_index.pl";
+$BFI	= $MITE_Hunter_Dir."blast_makeblastdb_index.pl";
 $FWM	= $MITE_Hunter_Dir."fasta_windows_maker.pl";
 $FS		= $MITE_Hunter_Dir."fasta_spliter.pl";
 $MHW1	= $MITE_Hunter_Dir."MITE_Hunter_worker1.pl";
@@ -41,8 +41,8 @@ foreach(@Raw_Files) {
 		chomp;
 		$Line = $_;
 
-		$Line =~ s/_formatdb_/$Formatdb/;
-		$Line =~ s/_blastall_/$Blastall/;
+		$Line =~ s/_makeblastdb_/$Makeblastdb/;
+		$Line =~ s/_legacyblast_/$Legacyblast/;
 		$Line =~ s/_mDust_/$Mdust/;
 		$Line =~ s/_muscle_/$Muscle/;
 		
@@ -83,8 +83,8 @@ sub usuage {
     Usage :reads_indexer <options> <specification> <default>
 
 	\$MITE_Hunter_Dir = defined \$opt_d ? \$opt_d : "";	    	#	The path of where you put MITE_Hunter. It starts from the root, like "/usr/name/MITE_Hunter/".
-	\$Formatdb        = defined \$opt_f ? \$opt_f : "formatdb";	#	The "formatdb" command, include path if necessary, like "/usr/bin/BLAST/formatdb"
-	\$Blastall        = defined \$opt_b ? \$opt_b : "blastall";	#	The "blastall" command, include path if necessary, like "/usr/bin/BLAST/blastall"
+	\$Makeblastdb     = defined \$opt_f ? \$opt_f : "makeblastdb";	#	The "makeblastdb" command, include path if necessary, like "/usr/bin/BLAST/makeblastdb"
+	\$Legacyblast     = defined \$opt_b ? \$opt_b : "legacyblast";	#	The "legacyblast" command, include path if necessary, like "/usr/bin/BLAST/legacy_blast.pl"
 	\$Mdust           = defined \$opt_m ? \$opt_m : "";			#	The "mdust" command, include path if necessary, like "/usr/bin/mdust/mdust"
 	\$Muscle          = defined \$opt_M ? \$opt_M : "";			#	The "muscle" command, include path if necessary, like "/usr/bin/muscle/muscle"
     \$Help            = defined \$opt_h ? \$opt_h : "";
@@ -92,7 +92,6 @@ sub usuage {
 
 	"You can find mdust at http://compbio.dfci.harvard.edu/tgi/software/";
 	"You can find muscle at http://www.drive5.com/muscle/";
-	"You can find formatdb and blastall at http://www.ncbi.nlm.nih.gov/staff/tao/URLAPI/blastall/ (but in most cases the computer your are using has already been install blast ...)";
 
     _EOT_
     exit(1)
