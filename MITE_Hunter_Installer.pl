@@ -84,7 +84,7 @@ sub usuage {
 
 	\$MITE_Hunter_Dir = defined \$opt_d ? \$opt_d : "";	    	#	The path of where you put MITE_Hunter. It starts from the root, like "/usr/name/MITE_Hunter/".
 	\$Makeblastdb     = defined \$opt_f ? \$opt_f : "makeblastdb";	#	The "makeblastdb" command, include path if necessary, like "/usr/bin/BLAST/makeblastdb"
-	\$Legacyblast     = defined \$opt_b ? \$opt_b : "legacyblast";	#	The "legacyblast" command, include path if necessary, like "/usr/bin/BLAST/legacy_blast.pl"
+	\$Legacyblast     = defined \$opt_b ? \$opt_b : "legacy_blast.pl";	#	The "legacyblast" command, include path if necessary, like "/usr/bin/BLAST/legacy_blast.pl"
 	\$Mdust           = defined \$opt_m ? \$opt_m : "";			#	The "mdust" command, include path if necessary, like "/usr/bin/mdust/mdust"
 	\$Muscle          = defined \$opt_M ? \$opt_M : "";			#	The "muscle" command, include path if necessary, like "/usr/bin/muscle/muscle"
     \$Help            = defined \$opt_h ? \$opt_h : "";

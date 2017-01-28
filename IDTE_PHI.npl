@@ -19,7 +19,7 @@
 #------
 # update to make it can find data for both protein and DNA alignment
 #------
-# write a single vertion to get rid of long introns, improve it later
+# write a single version to get rid of long introns, improve it later
 #
 #-----------------------------------------------------
 use Getopt::Std;
@@ -44,7 +44,7 @@ $Help           = defined $opt_h ? $opt_h : "";
 usuage() if((!$Input)||($Help));
 
 #--------------------------------------------------------
-#--------------- In this script, given E value is parsed into scitisfic notion if it < 1. 
+#--------------- In this script, given E value is parsed into scientific notion if it < 1. 
 #--------------- if given E >= 1 will be kept the same
 #--------------- an e evalue that has "e" would be considered smaller than one doesn't
 if($Max_Evalue =~ /e/) {
